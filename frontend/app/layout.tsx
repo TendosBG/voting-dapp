@@ -12,6 +12,8 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Bureau des Votes",
   description: "Plateforme de vote décentralisée",
+  keywords: ["vote", "blockchain", "décentralisé"],
+  authors: [{ name: "Tendos" }],
 };
 
 export default function RootLayout({
