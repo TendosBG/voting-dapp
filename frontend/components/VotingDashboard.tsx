@@ -93,14 +93,6 @@ export function VotingDashboard() {
         <h2 className="text-2xl font-bold text-slate-300">
           Votes Disponibles
         </h2>
-        {isConnected && (
-           <button 
-              onClick={() => setIsModalOpen(true)}
-              className="text-sm font-semibold border border-sky-500/50 text-sky-400 rounded-full px-4 py-1.5 hover:bg-sky-500 hover:text-slate-900 transition-colors"
-            >
-              Créer un vote
-            </button>
-        )}
       </div>
       
       <VoteList 
