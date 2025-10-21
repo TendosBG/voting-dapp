@@ -15,17 +15,19 @@ if (!rpcUrl) {
 }
 const publicProvider = new ethers.JsonRpcProvider(rpcUrl);
 
+const PAGE_SIZE = 9;
+
 export const fetchVotings = async ({ page = 1 }: { page?: number }): Promise<{ votes: DeployedVotingInfo[], totalVotes: number }> => {
   try {
     const contract = new ethers.Contract(factoryAddress, factoryABI, publicProvider);
     const allVotingAddresses: string[] = await contract.getDeployedVotings();
-    allVotingAddresses.reverse();
+    
+    const reversedAddresses = [...allVotingAddresses].reverse();
 
-    const totalVotes = allVotingAddresses.length;
-    const PAGE_SIZE = 9;
+    const totalVotes = reversedAddresses.length;
     const startIndex = (page - 1) * PAGE_SIZE;
     const endIndex = startIndex + PAGE_SIZE;
-    const paginatedAddresses = allVotingAddresses.slice(startIndex, endIndex);
+    const paginatedAddresses = reversedAddresses.slice(startIndex, endIndex);
 
     const votingsInfo = await Promise.all(
       paginatedAddresses.map(async (addr) => {

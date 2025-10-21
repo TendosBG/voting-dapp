@@ -10,7 +10,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Bureau des",
+  title: "Bureau des Votes",
   description: "Plateforme de vote décentralisée",
 };
 
