@@ -1,0 +1,42 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-d76ae968ab063a4985376d663c15c4966b54ee39",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/VotingFactory.sol": "project/contracts/VotingFactory.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/Voting.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract Voting {\n\n    uint public endDate;\n    uint public voteCount;\n    address public owner; \n    bool public votingEnded = false;\n    address private winner;\n    uint private winnerVotes;\n    string public name;\n    string public description;\n\n    event ParticipantEntered(address participantAddress, string name, string description);\n    event VoteCast(address voter, address participantAddress);\n    event VotingStopped();\n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"Only the contract owner can call this function\");\n        _;\n    }\n\n    modifier onlyVotingActive() {\n        require(!votingEnded, \"Voting has been stopped\");\n        require(block.timestamp < endDate, \"Voting period has ended\");\n        _;\n    }\n\n    struct Participant {\n        address participantAddress;\n        string name;\n        string description;\n    }\n\n    Participant[] private participants;\n\n    mapping (address => bool) public isParticipating;\n    mapping (address => uint16) private votes; \n\n    mapping (address => bool) public hasVoted;\n\n    constructor(address _owner, uint _time, string memory _name, string memory _description) {\n        endDate = block.timestamp + _time;\n        owner = _owner;\n        name = _name;\n        description = _description;\n    }\n\n    function stopVoting() public onlyOwner { \n        require(!votingEnded, \"Voting has already been stopped\");\n        \n        votingEnded = true;\n        endDate = block.timestamp;\n        emit VotingStopped();\n    }\n\n    /**\n     * @notice Permet à un utilisateur de s'inscrire en tant que participant au concours.\n     * @param _name Le nom du participant.\n     * @param _description Une brève description du participant.\n    */\n    function enterCompetition(string memory _name, string memory _description) public {\n        require(!isParticipating[msg.sender], \"Already a participant\");\n        \n        participants.push(Participant(msg.sender, _name, _description));\n        isParticipating[msg.sender] = true;\n        emit ParticipantEntered(msg.sender, _name, _description);\n    }\n\n    /**\n     * @notice Permet à un utilisateur de voter pour un participant.\n     * @param _participantAddress L'adresse du participant pour lequel l'utilisateur souhaite voter.\n     * Les utilisateurs ne peuvent pas voter pour eux-mêmes et ne peuvent voter qu'une seule fois.\n     * Le vote n'est possible que tant que le vote est actif.\n     * Le gagnant est mis à jour automatiquement après chaque vote.\n    */\n    function vote(address _participantAddress) public onlyVotingActive {\n        require(!hasVoted[msg.sender], \"You have already voted\");\n        require(isParticipating[_participantAddress], \"Invalid participant address\");\n        require(msg.sender != _participantAddress, \"You cannot vote for yourself\");\n        \n        votes[_participantAddress]++;\n        hasVoted[msg.sender] = true;\n        voteCount++;\n        emit VoteCast(msg.sender, _participantAddress);\n\n        if (votes[_participantAddress] > winnerVotes) {\n            winnerVotes = votes[_participantAddress];\n            winner = _participantAddress;\n        }\n    }\n\n    function getVotes(address _participant) public view returns (uint16) {\n        return votes[_participant];\n    }\n\n    function getWinner() public view returns (address, uint) {\n        require(votingEnded || block.timestamp >= endDate, \"Voting is still active\");\n        return (winner, winnerVotes);\n    }\n\n    function getParticipants() public view returns (Participant[] memory) {\n        return participants;\n    }\n}"
+      },
+      "project/contracts/VotingFactory.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"./Voting.sol\";\n// trigger recompilation\n\ncontract VotingFactory {\n    address[] public deployedVotings;\n\n    // Un événement pour notifier la création d'un nouveau vote\n    event VotingCreated(address indexed creator, address newVotingAddress, uint endDate);\n\n    /**\n     * @notice Permet à n'importe quel utilisateur de créer une nouvelle instance du contrat Voting.\n     * @param _time La durée du vote en secondes.\n     * @param _name Le nom du vote.\n     * @param _description La description de ce pourquoi on vote.\n     */\n    function createVoting(uint _time, string memory _name, string memory _description) public {\n        Voting newVoting = new Voting(msg.sender, _time, _name, _description);\n\n        deployedVotings.push(address(newVoting));\n\n        emit VotingCreated(msg.sender, address(newVoting), newVoting.endDate());\n    }\n\n    /**\n     * @notice Retourne la liste de toutes les adresses de contrats Voting déployés.\n     */\n    function getDeployedVotings() public view returns (address[] memory) {\n        return deployedVotings;\n    }\n}"
+      }
+    }
+  }
+}
