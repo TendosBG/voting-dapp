@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Web3Provider } from "@/contexts/Web3Provider"; // Importez le provider
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next"
 
 
 
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <SpeedInsights />
+      <Analytics />
       <body className={inter.className}>
         <Web3Provider>
           {children}
