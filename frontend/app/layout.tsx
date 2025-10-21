@@ -7,7 +7,7 @@ import { Web3Provider } from "@/contexts/Web3Provider"; // Importez le provider
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Voting dApp",
+  title: "Bureau des votes",
   description: "Plateforme de vote décentralisée",
 };
 

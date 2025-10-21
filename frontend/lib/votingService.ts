@@ -15,8 +15,6 @@ if (!rpcUrl) {
 }
 const publicProvider = new ethers.JsonRpcProvider(rpcUrl);
 
-const PAGE_SIZE = 9;
-
 export const fetchVotings = async ({ page = 1 }: { page?: number }): Promise<{ votes: DeployedVotingInfo[], totalVotes: number }> => {
   try {
     const contract = new ethers.Contract(factoryAddress, factoryABI, publicProvider);
@@ -24,6 +22,7 @@ export const fetchVotings = async ({ page = 1 }: { page?: number }): Promise<{ v
     allVotingAddresses.reverse();
 
     const totalVotes = allVotingAddresses.length;
+    const PAGE_SIZE = 9;
     const startIndex = (page - 1) * PAGE_SIZE;
     const endIndex = startIndex + PAGE_SIZE;
     const paginatedAddresses = allVotingAddresses.slice(startIndex, endIndex);
@@ -79,8 +78,8 @@ export const fetchVoteDetails = async (address: string, provider: ethers.Provide
     try {
       owner = await votingContract.owner();
       ownerEnsName = await provider.lookupAddress(owner);
-    } catch (e) {
-      console.warn("Impossible de récupérer le propriétaire (owner).");
+    } catch (error) {
+      console.warn("Impossible de récupérer le propriétaire (owner).", error);
     }
 
     let winnerResult = null;
@@ -94,12 +93,12 @@ export const fetchVoteDetails = async (address: string, provider: ethers.Provide
           ensName: winnerEnsName 
         };
       }
-    } catch (e) {
-      //
+    } catch (error) {
+       console.warn("Impossible de récupérer le gagnant.", error);
     }
 
     const participantsWithVotes = await Promise.all(
-      rawParticipants.map(async (p: any) => {
+      rawParticipants.map(async (p: [string, string, string]) => {
         const votes = await votingContract.getVotes(p[0]);
         const ensName = await provider.lookupAddress(p[0]);
         return { 
@@ -134,8 +133,8 @@ export const fetchUserStatus = async (contractAddress: string, userAddress: stri
     let hasVoted = false;
     try {
       hasVoted = await votingContract.hasVoted(userAddress);
-    } catch(e) {
-      console.warn("Impossible de vérifier hasVoted.");
+    } catch(error) {
+      console.warn("Impossible de vérifier hasVoted.", error);
     }
     const isParticipating = await votingContract.isParticipating(userAddress);
     

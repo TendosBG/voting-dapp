@@ -1,4 +1,3 @@
-// components/CustomConnectButton.tsx
 'use client';
 
 import { useWeb3Modal } from '@web3modal/ethers/react';
@@ -8,20 +7,22 @@ export function CustomConnectButton() {
   const { open } = useWeb3Modal();
   const { address, isConnected } = useWeb3ModalAccount();
 
-  const truncatedAddress = isConnected 
-    ? `${address.substring(0, 8)}...${address.substring(address.length - 4)}` 
+  const truncatedAddress = (isConnected && address) 
+    ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` 
     : '';
 
+  const baseClasses = "w-48 h-10 flex items-center justify-center rounded-full font-bold transition-colors duration-200 ease-in-out";
+  
   const buttonClasses = isConnected
-    ? "bg-slate-800 text-slate-300 font-medium py-2 px-4 rounded-full transition-colors duration-200 ease-in-out hover:bg-slate-700 cursor-pointer"
-    : "bg-sky-600 text-white font-bold py-2 px-5 rounded-full transition-colors duration-200 ease-in-out shadow-lg hover:bg-sky-700 cursor-pointer";
+    ? `${baseClasses} bg-slate-800 text-slate-300 hover:bg-slate-700`
+    : `${baseClasses} bg-sky-600 text-white shadow-lg hover:bg-sky-700`;
 
   return (
     <button
       onClick={() => open()}
       className={buttonClasses}
     >
-      {isConnected ? truncatedAddress : 'Connecter votre Wallet'}
+      {isConnected ? truncatedAddress : 'Connecter Wallet'}
     </button>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { fetchVotings } from '../lib/votingService';
 import { VoteList } from './VoteList';
@@ -24,7 +24,7 @@ export function VotingDashboard() {
   const [isCreatingVote, setIsCreatingVote] = useState(false);
   const initialLoadGuard = useRef(false);
 
-  const loadVotings = async (currentPage: number, isInitialLoad = false) => {
+  const loadVotings = useCallback(async (currentPage: number, isInitialLoad = false) => {
     if (isInitialLoad && currentPage === 1) {
       toast.loading('Chargement des votes...', { id: 'loading-votes' });
     }
@@ -33,14 +33,8 @@ export function VotingDashboard() {
     try {
       const { votes: newVotes, totalVotes } = await fetchVotings({ page: currentPage });
       
-      let allVotes: DeployedVotingInfo[] = [];
-      if (currentPage === 1) {
-        allVotes = newVotes;
-      } else {
-        allVotes = [...deployedVotings, ...newVotes];
-      }
-      setDeployedVotings(allVotes);
-      setHasMore(allVotes.length < totalVotes);
+      setDeployedVotings(prevVotes => currentPage === 1 ? newVotes : [...prevVotes, ...newVotes]);
+      setHasMore( (currentPage === 1 ? newVotes.length : deployedVotings.length + newVotes.length) < totalVotes);
       
       if (isInitialLoad) toast.success('Votes chargés !', { id: 'loading-votes' });
 
@@ -50,14 +44,14 @@ export function VotingDashboard() {
     } finally {
       if (currentPage > 1) setIsLoadingMore(false); else setIsLoading(false);
     }
-  };
+  }, [deployedVotings.length]);
 
   useEffect(() => {
-    if (!initialLoadGuard.current) {
+    if (initialLoadGuard.current === false) {
       initialLoadGuard.current = true;
       loadVotings(1, true);
     }
-  }, []);
+  }, [loadVotings]);
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
@@ -99,11 +93,19 @@ export function VotingDashboard() {
         <h2 className="text-2xl font-bold text-slate-300">
           Votes Disponibles
         </h2>
+        {isConnected && (
+           <button 
+              onClick={() => setIsModalOpen(true)}
+              className="text-sm font-semibold border border-sky-500/50 text-sky-400 rounded-full px-4 py-1.5 hover:bg-sky-500 hover:text-slate-900 transition-colors"
+            >
+              Créer un vote
+            </button>
+        )}
       </div>
       
       <VoteList 
         votes={deployedVotings} 
-        isLoading={isLoading} 
+        isLoading={isLoading}
         isConnected={isConnected}
         onAddVoteClick={() => setIsModalOpen(true)}
       />

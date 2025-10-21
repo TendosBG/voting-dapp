@@ -4,7 +4,6 @@ Une application décentralisée (DApp) full-stack qui permet à n'importe qui de
 
 ### [➡️ Accéder à la Démo Live]()
 
-![Aperçu de la DApp]
 
 ## 📋 Comment Utiliser l'Application
 
