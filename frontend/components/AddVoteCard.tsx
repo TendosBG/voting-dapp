@@ -8,7 +8,7 @@ export function AddVoteCard({ onClick }: AddVoteCardProps) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center justify-center h-48 rounded-lg border-2 border-dashed border-slate-600 hover:border-sky-500 hover:bg-slate-800/50 transition-all duration-200 cursor-pointer"
+      className="flex items-center justify-center rounded-lg border-2 border-dashed border-slate-600 hover:border-sky-500 hover:bg-slate-800/50 transition-all duration-200"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
